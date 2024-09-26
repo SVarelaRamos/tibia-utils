@@ -60,6 +60,16 @@ function App() {
   };
   const borderColor =
     valid === undefined ? "inherit" : valid === true ? "green" : "red";
+  const numPartyMembers =
+    sessionSummary && sessionSummary?.damageDistribution.length;
+  const transactionsByPlayer = sessionSummary?.transferInstructions.reduce(
+    (r, a) => {
+      r[a.from] = r[a.from] || [];
+      r[a.from].push(a);
+      return r;
+    },
+    Object.create(null)
+  );
   return (
     <>
       <textarea
@@ -68,6 +78,19 @@ function App() {
       >
         {example}
       </textarea>
+      {sessionSummary && (
+        <section>
+          <h3>Party hunt of {numPartyMembers} members</h3>
+          <dl>
+            <dt>Total Balance:</dt>
+            <dd>{sessionSummary.totalBalance}</dd>
+            <dt>Individual Balance:</dt>
+            <dd>{sessionSummary.individualBalance}</dd>
+            <dt>Loot per hour:</dt>
+            <dd>{sessionSummary.lootPerHour}</dd>
+          </dl>
+        </section>
+      )}
       {sessionSummary && (
         <code>
           <pre>{JSON.stringify(sessionSummary, null, 2)}</pre>
