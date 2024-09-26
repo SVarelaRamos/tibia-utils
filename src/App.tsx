@@ -73,6 +73,7 @@ function App() {
   return (
     <>
       <textarea
+        rows={valid ? 5 : 20}
         style={{ border: "2px solid", borderColor }}
         onChange={handleOnChange}
       >
@@ -89,6 +90,21 @@ function App() {
             <dt>Loot per hour:</dt>
             <dd>{sessionSummary.lootPerHour}</dd>
           </dl>
+          {Object.keys(transactionsByPlayer).map((key) => {
+            return (
+              <>
+                <h4>{key}</h4>
+                {transactionsByPlayer[key].map((transaction) => {
+                  return (
+                    <p>
+                      {`pay ${transaction.amount} to `}
+                      <em>{transaction.to}</em>
+                    </p>
+                  );
+                })}
+              </>
+            );
+          })}
         </section>
       )}
       {sessionSummary && (
