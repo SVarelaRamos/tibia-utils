@@ -6,6 +6,7 @@ export function validateSplitLootEntry(entry: string): boolean {
 
 export interface Player {
   name: string;
+  isLeader: boolean;
   loot: number;
   supplies: number;
   balance: number;
@@ -13,15 +14,27 @@ export interface Player {
   healing: number;
 }
 
+export interface DistributionData {
+  name: string;
+  percentage: number;
+}
+
+export interface QuantityData {
+  name: string;
+  qty: number;
+}
+
 export interface SessionSummary {
   totalBalance: number;
   individualBalance: number;
   lootPerHour: number;
-  damageDistribution: { name: string; percentage: number }[];
-  healingDistribution: { name: string; percentage: number }[];
+  numPlayers: number;
+  damageDistribution: DistributionData[];
+  healingDistribution: DistributionData[];
   transferInstructions: { from: string; to: string; amount: number }[];
   sessionDuration: string;
   sessionDate: string;
+  players: Player[];
 }
 
 export function parseSessionData(input: string): SessionSummary {
@@ -70,8 +83,12 @@ export function parseSessionData(input: string): SessionSummary {
   let match: RegExpExecArray | null;
 
   while ((match = playerDataRegex.exec(input)) !== null) {
+    const isLeader = match[1].includes("(Leader)");
+    const playerName = match[1].replace(" (Leader)", ""); // Eliminar "(Leader)" del nombre
+
     players.push({
-      name: match[1],
+      name: playerName,
+      isLeader: isLeader,
       loot: parseInt(match[2].replace(/,/g, ""), 10),
       supplies: parseInt(match[3].replace(/,/g, ""), 10),
       balance: parseInt(match[4].replace(/,/g, ""), 10),
@@ -154,11 +171,13 @@ export function parseSessionData(input: string): SessionSummary {
     totalBalance: balanceTotal,
     individualBalance: Math.round(individualBalance),
     lootPerHour: Math.round(lootPerHour),
+    numPlayers,
     damageDistribution,
     healingDistribution,
     transferInstructions,
     sessionDuration,
     sessionDate,
+    players,
   };
 
   return sessionSummary;

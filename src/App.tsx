@@ -1,5 +1,9 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "./App.css";
+import { Button } from "./components/ui/button";
+import { Textarea } from "./components/ui/textarea";
+import Component from "./game-stats-minimal-legend";
+import { cn } from "./lib/utils";
 import {
   parseSessionData,
   SessionSummary,
@@ -44,22 +48,64 @@ Warkant (Leader)
   Healing: 429,242
 `;
 function App() {
-  const [valid, setValid] = useState<undefined | boolean>(undefined);
+  const [isValid, setIsValid] = useState<undefined | boolean>(undefined);
+  const [text, setText] = useState(example);
   const [sessionSummary, setSessionSummary] = useState<SessionSummary | null>(
     null
   );
-  const handleOnChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
-    const newValue = e.currentTarget.value;
-    const isValid = validateSplitLootEntry(newValue);
-    setValid(isValid);
-    if (isValid) {
-      setSessionSummary(parseSessionData(newValue));
+  const [error, setError] = useState<string | null>(null);
+
+  const validateAndParseText = useCallback((input: string) => {
+    console.log("Validating and parsing text:", input); // Debug log
+    const isValidInput = validateSplitLootEntry(input);
+    console.log("Is valid input:", isValidInput); // Debug log
+    setIsValid(isValidInput);
+    setError(null);
+
+    if (isValidInput) {
+      try {
+        const summary = parseSessionData(input);
+        console.log("Parsed summary:", summary); // Debug log
+        setSessionSummary(summary);
+      } catch (error) {
+        console.error("Error parsing session data:", error);
+        setSessionSummary(null);
+        setError("Error parsing session data. Please check the input format.");
+      }
     } else {
       setSessionSummary(null);
+      if (input.trim() !== "") {
+        setError("Invalid input format. Please check your data.");
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    validateAndParseText(text);
+  }, [text, validateAndParseText]);
+
+  const handleOnChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setText(e.target.value);
+  };
+  const handlePasteFromClipboard = async () => {
+    try {
+      const clipboardText = await navigator.clipboard.readText();
+      setText(clipboardText.toString());
+    } catch (err) {
+      console.error("Failed to read clipboard contents: ", err);
     }
   };
+
+  const handleOnClick = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
+
   const borderColor =
-    valid === undefined ? "inherit" : valid === true ? "green" : "red";
+    isValid === undefined
+      ? ""
+      : isValid === true
+      ? "textarea__input-green"
+      : "textarea__input-red";
   const numPartyMembers =
     sessionSummary && sessionSummary?.damageDistribution.length;
   const transactionsByPlayer = sessionSummary?.transferInstructions.reduce(
@@ -72,46 +118,17 @@ function App() {
   );
   return (
     <>
-      <textarea
-        rows={valid ? 5 : 20}
-        style={{ border: "2px solid", borderColor }}
-        onChange={handleOnChange}
-      >
-        {example}
-      </textarea>
-      {sessionSummary && (
-        <section>
-          <h3>Party hunt of {numPartyMembers} members</h3>
-          <dl>
-            <dt>Total Balance:</dt>
-            <dd>{sessionSummary.totalBalance}</dd>
-            <dt>Individual Balance:</dt>
-            <dd>{sessionSummary.individualBalance}</dd>
-            <dt>Loot per hour:</dt>
-            <dd>{sessionSummary.lootPerHour}</dd>
-          </dl>
-          {Object.keys(transactionsByPlayer).map((key) => {
-            return (
-              <>
-                <h4>{key}</h4>
-                {transactionsByPlayer[key].map((transaction) => {
-                  return (
-                    <p>
-                      {`pay ${transaction.amount} to `}
-                      <em>{transaction.to}</em>
-                    </p>
-                  );
-                })}
-              </>
-            );
-          })}
-        </section>
-      )}
-      {sessionSummary && (
-        <code>
-          <pre>{JSON.stringify(sessionSummary, null, 2)}</pre>
-        </code>
-      )}
+      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <Button onClick={handlePasteFromClipboard}>Paste</Button>
+        <Textarea
+          className={cn("mb-10")}
+          rows={isValid ? 5 : 5}
+          onChange={handleOnChange}
+          value={text}
+        />
+        {!isValid && <p>{error}</p>}
+      </div>
+      {sessionSummary && <Component sessionSummary={sessionSummary} />}
     </>
   );
 }

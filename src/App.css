@@ -4,8 +4,14 @@
   padding: 2rem;
 }
 
+h3,
+h4 {
+  margin: 0px;
+}
+
 textarea {
   min-width: 65ch;
+  background-color: white;
 }
 
 dl {
@@ -20,4 +26,37 @@ dt {
 
 dd {
   text-align: right;
+}
+
+.textarea__input {
+  border: 5px solid;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.textarea__input-green,
+.textarea__input-green:hover,
+.textarea__input-green:focus,
+.textarea__input-green:active {
+  border-color: green;
+}
+
+.textarea__input-red,
+.textarea__input-red:hover,
+.textarea__input-red:focus,
+.textarea__input-red:active {
+  border-color: red;
+}
+
+.transfer-command {
+  font-family: "Courier New", Courier, monospace;
+  background-color: #575757;
+  padding: 0.75rem 1.5rem;
+  border: 0;
+}
+
+.transfer-command:hover,
+.transfer-command:focus,
+.transfer-command:focus-visible {
+  background-color: #3d3d3d;
 }
