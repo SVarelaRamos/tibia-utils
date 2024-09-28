@@ -165,7 +165,13 @@ export default function Component({
     lootPerHour,
     damageDistribution,
     healingDistribution,
+    transferInstructions,
   } = sessionSummary;
+  const transactionsByPlayer = transferInstructions.reduce((r, a) => {
+    r[a.from] = r[a.from] || [];
+    r[a.from].push(a);
+    return r;
+  }, Object.create(null));
   return (
     sessionSummary && (
       <Card className="w-full max-w-4xl mx-auto">
@@ -255,15 +261,24 @@ export default function Component({
           <div>
             <h3 className="text-lg font-semibold mb-4">Player Actions</h3>
             <div className="space-y-4">
-              {playerActions.map((player, index) => (
+              {Object.keys(transactionsByPlayer).map((key, index) => (
                 <div key={index} className="space-y-2">
-                  <h4 className="font-medium">{player.from}</h4>
-                  {player.actions.map((action, actionIndex) => (
-                    <CopyableCommand
-                      key={actionIndex}
-                      command={`transfer ${action.amount} to ${action.to}`}
-                    />
-                  ))}
+                  <h4 className="font-medium">{key}</h4>
+                  {transactionsByPlayer[key].map(
+                    (
+                      transaction: {
+                        from: string;
+                        to: string;
+                        amount: number;
+                      },
+                      index
+                    ) => (
+                      <CopyableCommand
+                        key={index}
+                        command={`transfer ${transaction.amount} to ${transaction.to}`}
+                      />
+                    )
+                  )}
                 </div>
               ))}
             </div>

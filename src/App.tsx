@@ -96,26 +96,6 @@ function App() {
     }
   };
 
-  const handleOnClick = (text: string) => {
-    navigator.clipboard.writeText(text);
-  };
-
-  const borderColor =
-    isValid === undefined
-      ? ""
-      : isValid === true
-      ? "textarea__input-green"
-      : "textarea__input-red";
-  const numPartyMembers =
-    sessionSummary && sessionSummary?.damageDistribution.length;
-  const transactionsByPlayer = sessionSummary?.transferInstructions.reduce(
-    (r, a) => {
-      r[a.from] = r[a.from] || [];
-      r[a.from].push(a);
-      return r;
-    },
-    Object.create(null)
-  );
   return (
     <>
       <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
