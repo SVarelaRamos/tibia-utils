@@ -22,18 +22,6 @@ import { DistributionData, QuantityData, SessionSummary } from "./utils";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
-const playerActions = [
-  {
-    from: "Mrufff",
-    actions: [
-      { to: "Chodzacy zduchami tanno", amount: 103721 },
-      { to: "Lost Cizu", amount: 257582 },
-    ],
-  },
-  { from: "Radosny Radek", actions: [{ to: "Lost Cizu", amount: 25457 }] },
-  { from: "Warkant", actions: [{ to: "Lost Cizu", amount: 100659 }] },
-];
-
 function CopyableCommand({ command }: { command: string }) {
   const [copied, setCopied] = useState(false);
 
@@ -58,7 +46,13 @@ function CopyableCommand({ command }: { command: string }) {
   );
 }
 
-function BarChartA({ data, title }: { data: QuantityData[]; title: string }) {
+function QuantityBarChart({
+  data,
+  title,
+}: {
+  data: QuantityData[];
+  title: string;
+}) {
   const chartConfig: ChartConfig = data.reduce((acc, data, index) => {
     acc[data.name] = {
       label: data.name,
@@ -151,7 +145,7 @@ function DistributionChart({
   );
 }
 
-export default function Component({
+export default function SumaryStats({
   sessionSummary,
 }: {
   sessionSummary: SessionSummary;
@@ -222,7 +216,7 @@ export default function Component({
               data={healingDistribution}
               title="Healing Distribution"
             />
-            <BarChartA
+            <QuantityBarChart
               data={sessionSummary.players.map((player) => {
                 return {
                   name: player.name,
@@ -231,7 +225,7 @@ export default function Component({
               })}
               title="Loot Distribution"
             />
-            <BarChartA
+            <QuantityBarChart
               data={sessionSummary.players.map((player) => {
                 return {
                   name: player.name,
@@ -271,7 +265,7 @@ export default function Component({
                         to: string;
                         amount: number;
                       },
-                      index
+                      index: number
                     ) => (
                       <CopyableCommand
                         key={index}
