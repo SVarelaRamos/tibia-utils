@@ -18,6 +18,17 @@ function App() {
   );
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const root = window.document.documentElement;
+
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+      .matches
+      ? "dark"
+      : "light";
+
+    root.classList.add(systemTheme);
+  }, []);
+
   const validateAndParseText = useCallback((input: string) => {
     console.log("Validating and parsing text:", input); // Debug log
     const isValidInput = validateSplitLootEntry(input);
