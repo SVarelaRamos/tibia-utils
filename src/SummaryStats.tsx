@@ -207,6 +207,36 @@ export default function SumaryStats({
 
           <Separator />
 
+          <div>
+            <h3 className="text-lg font-semibold mb-4">
+              Splitting instructions
+            </h3>
+            <div className="space-y-4">
+              {Object.keys(transactionsByPlayer).map((key, index) => (
+                <div key={index} className="space-y-2">
+                  <h4 className="text-sm font-medium ">{key}</h4>
+                  {transactionsByPlayer[key].map(
+                    (
+                      transaction: {
+                        from: string;
+                        to: string;
+                        amount: number;
+                      },
+                      index: number
+                    ) => (
+                      <CopyableCommand
+                        key={index}
+                        command={`transfer ${transaction.amount} to ${transaction.to}`}
+                      />
+                    )
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <Separator />
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <DistributionChart
               data={damageDistribution}
@@ -249,33 +279,6 @@ export default function SumaryStats({
                   <span className="text-sm">{player}</span>
                 </div>
               ))}
-          </div>
-          <Separator />
-
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Player Actions</h3>
-            <div className="space-y-4">
-              {Object.keys(transactionsByPlayer).map((key, index) => (
-                <div key={index} className="space-y-2">
-                  <h4 className="font-medium">{key}</h4>
-                  {transactionsByPlayer[key].map(
-                    (
-                      transaction: {
-                        from: string;
-                        to: string;
-                        amount: number;
-                      },
-                      index: number
-                    ) => (
-                      <CopyableCommand
-                        key={index}
-                        command={`transfer ${transaction.amount} to ${transaction.to}`}
-                      />
-                    )
-                  )}
-                </div>
-              ))}
-            </div>
           </div>
         </CardContent>
       </Card>
