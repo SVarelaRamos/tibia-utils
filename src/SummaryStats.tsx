@@ -18,12 +18,18 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "./components/ui/chart";
-import { DistributionData, QuantityData, SessionSummary } from "./utils";
+import {
+  buildDiscordCopyText,
+  DistributionData,
+  QuantityData,
+  SessionSummary,
+} from "./utils";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
 function CopyableCommand({ command }: { command: string }) {
   const [copied, setCopied] = useState(false);
+  console.log(command);
 
   const copyToClipboard = async () => {
     await navigator.clipboard.writeText(command);
@@ -43,6 +49,28 @@ function CopyableCommand({ command }: { command: string }) {
         {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
       </Button>
     </div>
+  );
+}
+
+function CopyButton({ copyText }: { copyText: string }) {
+  const [copied, setCopied] = useState(false);
+  console.log(copyText);
+
+  const copyToClipboard = async () => {
+    await navigator.clipboard.writeText(copyText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={copyToClipboard}
+      className="h-6 w-6"
+    >
+      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+    </Button>
   );
 }
 
@@ -208,9 +236,10 @@ export default function SumaryStats({
           <Separator />
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">
-              Splitting instructions
-            </h3>
+            <div className="flex flex-row justify-between items-center mb-4 mr-2">
+              <h3 className="text-lg font-semibold">Splitting instructions</h3>
+              <CopyButton copyText={buildDiscordCopyText(sessionSummary)} />
+            </div>
             <div className="space-y-4">
               {Object.keys(transactionsByPlayer).map((key, index) => (
                 <div key={index} className="space-y-2">

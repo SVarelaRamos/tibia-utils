@@ -182,3 +182,45 @@ export function parseSessionData(input: string): SessionSummary {
 
   return sessionSummary;
 }
+
+export function buildDiscordCopyText({
+  numPlayers,
+  totalBalance,
+  lootPerHour,
+  individualBalance,
+  transferInstructions,
+  sessionDate,
+  sessionDuration,
+}: SessionSummary) {
+  const transactionsByPlayer = transferInstructions.reduce((r, a) => {
+    r[a.from] = r[a.from] || [];
+    r[a.from].push(a);
+    return r;
+  }, Object.create(null));
+
+  // Generate transaction text per player
+  const transactionText = Object.keys(transactionsByPlayer)
+    .map((key) => {
+      const transfers = transactionsByPlayer[key]
+        .map(
+          (transaction: { from: string; to: string; amount: number }) =>
+            `\`transfer ${transaction.amount} to ${transaction.to}\``
+        )
+        .join("\n"); // Join transfers for each player with new lines
+      return `**🠺${key}:**\n${transfers}`;
+    })
+    .join("\n");
+
+  const discordText = `>>> ## Party Hunt Session – ${numPlayers} members
+Balance: **${totalBalance} gp**
+Individual balance: **${individualBalance} gp**
+Loot per hour: **${lootPerHour} gp/h**
+
+### Splitting Instructions
+${transactionText}
+
+*Powered by https://tibia-utils.vercel.app/*
+-# ${sessionDuration.slice(0, 5)}h hunt on ${sessionDate}`;
+
+  return discordText;
+}
